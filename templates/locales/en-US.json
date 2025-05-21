@@ -1,0 +1,23 @@
+{
+    "systemName": "Intelligent Customer Service System",
+    "loginPrompt": "Please log in to your account",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "login": "Login",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "sessions": "Sessions",
+    "faqs": "FAQs",
+    "users": "User Management",
+    "settings": "System Settings",
+    "activeSessions": "Active Sessions",
+    "todayReplies": "Today's Replies",
+    "avgResponseTime": "Average Response Time",
+    "customerSatisfaction": "Customer Satisfaction",
+    "viewAll": "View All",
+    "addFaq": "Add FAQ",
+    "onlineStaff": "Online Staff"
+}    

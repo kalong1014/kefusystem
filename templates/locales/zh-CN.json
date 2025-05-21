@@ -1,0 +1,23 @@
+{
+    "systemName": "智能客服系统",
+    "loginPrompt": "请登录您的账户",
+    "email": "邮箱",
+    "password": "密码",
+    "rememberMe": "记住我",
+    "forgotPassword": "忘记密码?",
+    "login": "登录",
+    "noAccount": "还没有账户?",
+    "register": "注册",
+    "dashboard": "控制台",
+    "sessions": "会话",
+    "faqs": "常见问题",
+    "users": "用户管理",
+    "settings": "系统设置",
+    "activeSessions": "活跃会话",
+    "todayReplies": "今日回复",
+    "avgResponseTime": "平均响应时间",
+    "customerSatisfaction": "客户满意度",
+    "viewAll": "查看全部",
+    "addFaq": "添加常见问题",
+    "onlineStaff": "在线客服"
+}    

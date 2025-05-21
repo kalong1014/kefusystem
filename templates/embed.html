@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏内嵌客服</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#00B42A',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .message-appear {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-transparent min-h-screen m-0 p-0 overflow-hidden">
+    <!-- 客服按钮 -->
+    <div id="chat-button" class="fixed bottom-6 right-6 z-50">
+        <button class="bg-primary hover:bg-primary/90 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+            <i class="fa fa-comments text-xl"></i>
+        </button>
+    </div>
+    
+    <!-- 客服窗口 (默认隐藏) -->
+    <div id="chat-window" class="fixed bottom-6 right-6 w-[340px] max-w-full bg-white rounded-xl shadow-xl overflow-hidden transform translate-y-full transition-transform duration-300 ease-in-out z-50">
+        <!-- 窗口头部 -->
+        <div class="bg-primary text-white p-4 flex items-center justify-between cursor-move" id="chat-header">
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-2">
+                    <i class="fa fa-comments text-white"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold">游戏客服</h3>
+                    <p class="text-xs opacity-80">在线时间: 9:00-22:00</p>
+                </div>
+            </div>
+            <div class="flex">
+                <button id="minimize-chat" class="text-white/80 hover:text-white p-1">
+                    <i class="fa fa-window-minimize"></i>
+                </button>
+                <button id="close-chat" class="text-white/80 hover:text-white p-1 ml-2">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 欢迎区域 -->
+        <div id="embed-welcome-area" class="p-4 text-center">
+            <h4 class="text-lg font-bold text-primary mb-2">需要帮助？</h4>
+            <p class="text-gray-600 text-sm mb-3">我们的客服团队随时为您服务</p>
+            <button id="start-embed-chat" class="bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-full text-sm transition-all duration-300 shadow-sm hover:shadow-md">
+                开始咨询
+            </button>
+        </div>
+        
+        <!-- 聊天区域 (默认隐藏) -->
+        <div id="embed-chat-area" class="hidden flex flex-col h-[400px]">
+            <!-- 常见问题 -->
+            <div class="p-3 bg-neutral border-b">
+                <div class="text-xs text-gray-500 mb-1">常见问题:</div>
+                <div class="flex flex-wrap gap-1" id="embed-faq-container">
+                    <!-- FAQ 将通过JavaScript动态加载 -->
+                </div>
+            </div>
+            
+            <!-- 消息区域 -->
+            <div id="embed-messages-container" class="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-hide">
+                <!-- 消息将通过JavaScript动态加载 -->
+            </div>
+            
+            <!-- 输入区域 -->
+            <div class="p-3 border-t">
+                <div class="flex items-center mb-1">
+                    <button id="embed-emoji-btn" class="text-gray-500 hover:text-primary p-1">
+                        <i class="fa fa-smile-o"></i>
+                    </button>
+                    <button id="embed-image-btn" class="text-gray-500 hover:text-primary p-1">
+                        <i class="fa fa-picture-o"></i>
+                    </button>
+                    <div class="flex-1"></div>
+                    <select id="embed-language-select" class="text-xs border rounded px-1 py-0 bg-white focus:outline-none focus:ring-1 focus:ring-primary">
+                        <option value="zh-CN">简体中文</option>
+                        <option value="en-US">English</option>
+                        <option value="ja-JP">日本語</option>
+                        <option value="ko-KR">한국어</option>
+                    </select>
+                </div>
+                <div class="flex">
+                    <textarea id="embed-message-input" class="flex-1 border rounded-l-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none" rows="1" placeholder="输入您的问题..."></textarea>
+                    <button id="embed-send-btn" class="bg-primary hover:bg-primary/90 text-white px-3 rounded-r-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                        发送
+                    </button>
+                </div>
+                <input type="file" id="embed-image-upload" class="hidden" accept="image/*">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Emoji选择器 (默认隐藏) -->
+    <div id="embed-emoji-picker" class="fixed bottom-[220px] right-[360px] bg-white rounded-lg shadow-xl p-2 w-48 hidden z-50">
+        <div class="grid grid-cols-8 gap-1">
+            <!-- Emoji将通过JavaScript动态加载 -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const chatButton = document.getElementById('chat-button');
+            const chatWindow = document.getElementById('chat-window');
+            const minimizeChat = document.getElementById('minimize-chat');
+            const closeChat = document.getElementById('close-chat');
+            const chatHeader = document.getElementById('chat-header');
+            const embedWelcomeArea = document.getElementById('embed-welcome-area');
+            const embedChatArea = document.getElementById('embed-chat-area');
+            const startEmbedChat = document.getElementById('start-embed-chat');
+            const embedMessageInput = document.getElementById('embed-message-input');
+            const embedSendBtn = document.getElementById('embed-send-btn');
+            const embedMessagesContainer = document.getElementById('embed-messages-container');
+            const embedEmojiBtn = document.getElementById('embed-emoji-btn');
+            const embedEmojiPicker = document.getElementById('embed-emoji-picker');
+            const embedImageBtn = document.getElementById('embed-image-btn');
+            const embedImageUpload = document.getElementById('embed-image-upload');
+            const embedFaqContainer = document.getElementById('embed-faq-container');
+            const embedLanguageSelect = document.getElementById('embed-language-select');
+            
+            // 会话ID
+            let embedSessionId = null;
+            // 图片预览列表
+            let embedImagePreviews = [];
+            // 窗口拖动相关变量
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            // 初始化常见问题
+            initEmbedFAQs();
+            
+            // 聊天按钮点击事件
+            chatButton.addEventListener('click', function() {
+                chatWindow.classList.remove('translate-y-full');
+                chatButton.classList.add('hidden');
+            });
+            
+            // 最小化按钮点击事件
+            minimizeChat.addEventListener('click', function() {
+                chatWindow.classList.add('translate-y-full');
+                chatButton.classList.remove('hidden');
+            });
+            
+            // 关闭按钮点击事件
+            closeChat.addEventListener('click', function() {
+                chatWindow.classList.add('translate-y-full');
+                chatButton.classList.remove('hidden');
+                embedChatArea.classList.add('hidden');
+                embedWelcomeArea.classList.remove('hidden');
+            });
+            
+            // 开始聊天按钮点击事件
+            startEmbedChat.addEventListener('click', function() {
+                embedWelcomeArea.classList.add('hidden');
+                embedChatArea.classList.remove('hidden');
+                
+                // 创建新会话
+                createEmbedSession();
+            });
+            
+            // 消息输入框事件
+            embedMessageInput.addEventListener('input', function() {
+                embedSendBtn.disabled = this.value.trim() === '';
+            });
+            
+            // 发送按钮点击事件
+            embedSendBtn.addEventListener('click', sendEmbedMessage);
+            
+            // 消息输入框回车事件
+            embedMessageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendEmbedMessage();
+                }
+            });
+            
+            // Emoji按钮点击事件
+            embedEmojiBtn.addEventListener('click', function() {
+                embedEmojiPicker.classList.toggle('hidden');
+                
+                // 如果是第一次打开，加载Emoji
+                if (embedEmojiPicker.querySelector('div').children.length === 0) {
+                    loadEmbedEmojis();
+                }
+            });
+            
+            // 点击其他区域关闭Emoji选择器
+            document.addEventListener('click', function(e) {
+                if (!embedEmojiBtn.contains(e.target) && !embedEmojiPicker.contains(e.target)) {
+                    embedEmojiPicker.classList.add('hidden');
+                }
+            });
+            
+            // 图片按钮点击事件
+            embedImageBtn.addEventListener('click', function() {
+                embedImageUpload.click();
+            });
+            
+            // 图片上传事件
+            embedImageUpload.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    
+                    if (!embedSessionId) {
+                        alert('请先开始会话');
+                        return;
+                    }
+                    
+                    // 创建表单数据
+                    const formData = new FormData();
+                    formData.append('sessionId', embedSessionId);
+                    formData.append('content', '');
+                    formData.append('image', file);
+                    formData.append('language', embedLanguageSelect.value);
+                    
+                    // 发送消息
+                    sendEmbedMessage(formData);
+                    
+                    // 清空文件输入
+                    embedImageUpload.value = '';
+                }
+            });
+            
+            // 语言选择变化事件
+            embedLanguageSelect.addEventListener('change', function() {
+                // 保存用户语言设置
+                localStorage.setItem('embedUserLanguage', this.value);
+                
+                // 如果已经有会话，重新加载消息以获取翻译
+                if (embedSessionId) {
+                    loadEmbedMessages();
+                }
+            });
+            
+            // 初始化用户语言设置
+            const savedEmbedLanguage = localStorage.getItem('embedUserLanguage');
+            if (savedEmbedLanguage) {
+                embedLanguageSelect.value = savedEmbedLanguage;
+            }
+            
+            // 窗口拖动功能
+            chatHeader.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                offsetX = e.clientX - chatWindow.getBoundingClientRect().left;
+                offsetY = e.clientY - chatWindow.getBoundingClientRect().top;
+                chatWindow.style.transition = 'none';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const x = e.clientX - offsetX;
+                const y = e.clientY - offsetY;
+                
+                // 限制窗口位置，防止完全移出视口
+                const maxX = window.innerWidth - chatWindow.offsetWidth;
+                const maxY = window.innerHeight - chatWindow.offsetHeight;
+                
+                chatWindow.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
+                chatWindow.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+                chatWindow.style.bottom = 'auto';
+                chatWindow.style.right = 'auto';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    chatWindow.style.transition = 'transform 0.3s ease-in-out';
+                }
+            });
+            
+            // 加载Emoji
+            function loadEmbedEmojis() {
+                const emojis = [
+                    '😊', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '🥰', '😍', 
+                    '🤩', '😎', '🤓', '😜', '🤪', '😏', '😒', '😞', '😔', '😟', 
+                    '😢', '😭', '😩', '😫', '😤', '😠', '😡', '🤯', '😳', '🥺', 
+                    '😓', '🤗', '🤔', '🤭', '🧐', '😶', '😐', '😑', '🙄', '😴'
+                ];
+                
+                const container = embedEmojiPicker.querySelector('div');
+                
+                emojis.forEach(emoji => {
+                    const emojiBtn = document.createElement('button');
+                    emojiBtn.className = 'text-base p-1 hover:bg-gray-100 rounded-full transition-colors';
+                    emojiBtn.textContent = emoji;
+                    
+                    emojiBtn.addEventListener('click', function() {
+                        embedMessageInput.value += emoji;
+                        embedMessageInput.focus();
+                        embedSendBtn.disabled = false;
+                    });
+                    
+                    container.appendChild(emojiBtn);
+                });
+            }
+            
+            // 初始化常见问题
+            function initEmbedFAQs() {
+                fetch('/api/faqs')
+                    .then(response => response.json())
+                    .then(faqs => {
+                        embedFaqContainer.innerHTML = '';
+                        
+                        faqs.slice(0, 5).forEach(faq => {
+                            const faqBtn = document.createElement('button');
+                            faqBtn.className = 'bg-white hover:bg-primary hover:text-white text-xs border border-gray-200 hover:border-primary rounded-full px-2 py-0.5 transition-colors';
+                            faqBtn.textContent = faq.Question;
+                            
+                            faqBtn.addEventListener('click', function() {
+                                // 将FAQ的答案添加到消息框
+                                addEmbedSystemMessage(faq.Answer);
+                            });
+                            
+                            embedFaqContainer.appendChild(faqBtn);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading FAQs:', error);
+                    });
+            }
+            
+            // 创建会话
+            function createEmbedSession() {
+                // 从URL参数获取游戏ID和玩家ID
+                const urlParams = new URLSearchParams(window.location.search);
+                const gameId = urlParams.get('gameId') || 'default_game';
+                const playerId = urlParams.get('playerId') || `player_${Date.now()}`;
+                const userLanguage = embedLanguageSelect.value;
+                
+                // 保存额外参数
+                const customFields = {
+                    gameId: gameId,
+                    playerId: playerId
+                };
+                
+                // 保存其他可能的URL参数
+                urlParams.forEach((value, key) => {
+                    if (key !== 'gameId' && key !== 'playerId') {
+                        customFields[key] = value;
+                    }
+                });
+                
+                // 发送API请求创建会话
+                fetch('/api/session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userID: playerId,
+                        language: userLanguage,
+                        customFields: JSON.stringify(customFields)
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    embedSessionId = data.id;
+                    
+                    // 连接WebSocket
+                    connectEmbedWebSocket();
+                    
+                    // 添加欢迎消息
+                    addEmbedSystemMessage('您好！欢迎使用游戏客服，请问有什么可以帮助您的？');
+                })
+                .catch(error => {
+                    console.error('Error creating session:', error);
+                    addEmbedSystemMessage('创建会话失败，请重试');
+                });
+            }
+            
+            // 发送消息
+            function sendEmbedMessage(formData = null) {
+                if (!formData) {
+                    const content = embedMessageInput.value.trim();
+                    const userLanguage = embedLanguageSelect.value;
+                    
+                    if (!embedSessionId || content === '') {
+                        return;
+                    }
+                    
+                    // 创建表单数据
+                    formData = new FormData();
+                    formData.append('sessionId', embedSessionId);
+                    formData.append('content', content);
+                    formData.append('language', userLanguage);
+                }
+                
+                // 显示正在发送的消息
+                const content = formData.get('content');
+                const isImage = formData.get('image') !== null;
+                
+                if (content || isImage) {
+                    const messageId = addEmbedMessage(
+                        content, 
+                        'outgoing', 
+                        isImage ? [URL.createObjectURL(formData.get('image'))] : []
+                    );
+                }
+                
+                // 发送消息
+                fetch('/api/message', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Message sent successfully:', data);
+                    
+                    // 清空输入框
+                    if (!isImage) {
+                        embedMessageInput.value = '';
+                        embedSendBtn.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    
+                    // 显示错误消息
+                    const messageElement = document.getElementById(`embed-message-${messageId}`);
+                    if (messageElement) {
+                        messageElement.classList.add('text-red-500');
+                        messageElement.innerHTML += '<span class="text-xs ml-2">(发送失败)</span>';
+                    }
+                });
+            }
+            
+            // 添加系统消息
+            function addEmbedSystemMessage(content) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'flex justify-center message-appear';
+                messageElement.innerHTML = `
+                    <div class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-xs max-w-[70%]">
+                        ${content}
+                    </div>
+                `;
+                
+                embedMessagesContainer.appendChild(messageElement);
+                embedMessagesContainer.scrollTop = embedMessagesContainer.scrollHeight;
+            }
+            
+            // 添加消息
+            function addEmbedMessage(content, direction, images = []) {
+                const messageId = Date.now().toString();
+                
+                const messageElement = document.createElement('div');
+                messageElement.className = `flex ${direction === 'outgoing' ? 'justify-end' : 'justify-start'} message-appear`;
+                messageElement.id = `embed-message-${messageId}`;
+                
+                let bubbleClass = direction === 'outgoing' ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-800';
+                
+                let messageContent = '';
+                
+                if (content) {
+                    messageContent += `<div class="text-xs mb-1">${content}</div>`;
+                }
+                
+                if (images && images.length > 0) {
+                    messageContent += `<div class="flex gap-1 mb-1">${images.map(img => `<img src="${img}" class="w-16 h-16 object-cover rounded border" />`).join('')}</div>`;
+                }
+                
+                // 翻译内容占位
+                messageContent += `<div class="text-[10px] mt-0.5 text-gray-400 translate-placeholder">正在翻译...</div>`;
+                
+                messageElement.innerHTML = `
+                    <div class="max-w-[70%]">
+                        <div class="${bubbleClass} p-2 rounded-lg">
+                            ${messageContent}
+                        </div>
+                    </div>
+                `;
+                
+                embedMessagesContainer.appendChild(messageElement);
+                embedMessagesContainer.scrollTop = embedMessagesContainer.scrollHeight;
+                
+                return messageId;
+            }
+            
+            // 连接WebSocket
+            function connectEmbedWebSocket() {
+                const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${wsProtocol}//${window.location.host}/ws?sessionId=${embedSessionId}`;
+                
+                const ws = new WebSocket(wsUrl);
+                
+                ws.onopen = function() {
+                    console.log('Embed WebSocket connection established');
+                };
+                
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'message') {
+                        // 添加收到的消息
+                        addEmbedMessage(data.content, 'incoming', data.images || []);
+                        
+                        // 更新翻译内容
+                        updateEmbedTranslation(data.id, data.translatedContent);
+                    } else if (data.type === 'system') {
+                        // 添加系统消息
+                        addEmbedSystemMessage(data.content);
+                    }
+                };
+                
+                ws.onclose = function() {
+                    console.log('Embed WebSocket connection closed');
+                    // 可以添加重连逻辑
+                };
+                
+                ws.onerror = function(error) {
+                    console.error('Embed WebSocket error:', error);
+                };
+            }
+            
+            // 更新翻译内容
+            function updateEmbedTranslation(messageId, translatedContent) {
+                const messageElement = document.getElementById(`embed-message-${messageId}`);
+                if (messageElement) {
+                    const translatePlaceholder = messageElement.querySelector('.translate-placeholder');
+                    if (translatePlaceholder) {
+                        translatePlaceholder.textContent = translatedContent || '翻译失败';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>    

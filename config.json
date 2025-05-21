@@ -1,0 +1,5 @@
+{
+    "upload_path": "uploads",
+    "max_image_size": 5242880,
+    "max_message_count": 100
+}    
