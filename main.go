@@ -47,8 +47,9 @@ func main() {
 	r.LoadHTMLGlob(templatePath)
 
 	// 静态文件服务 - 分别为不同类型的静态资源设置路径
-	r.Static("/css", filepath.Join(cwd, "templates/css"))
-	r.Static("/js", filepath.Join(cwd, "templates/js"))
+	r.Static("/static", filepath.Join(cwd, "node_modules")) // 第三方库
+	r.Static("/css", filepath.Join(cwd, "templates/css"))   // 自定义CSS
+	r.Static("/js", filepath.Join(cwd, "templates/js"))     // 自定义JS
 	r.Static("/locales", filepath.Join(cwd, "templates/locales"))
 	r.StaticFile("/favicon.ico", filepath.Join(cwd, "templates/favicon.ico"))
 
