@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -12,6 +13,13 @@ import (
 )
 
 func main() {
+	// 获取当前工作目录（项目根目录）
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("获取当前工作目录失败: %v", err)
+	}
+	log.Printf("项目根目录: %s", cwd)
+
 	// 初始化数据库
 	db, err := database.InitDB()
 	if err != nil {
@@ -33,12 +41,16 @@ func main() {
 
 	r := gin.Default()
 
-	// 初始化HTML模板引擎（新增代码）
-	r.LoadHTMLGlob("templates/**/*.html")
+	// 加载templates目录下的所有HTML文件
+	templatePath := filepath.Join(cwd, "templates/*.html")
+	log.Printf("尝试加载模板: %s", templatePath)
+	r.LoadHTMLGlob(templatePath)
 
-	// 静态文件服务
-	r.Static("/static", "./static")
-	r.Static("/uploads", "./uploads")
+	// 静态文件服务 - 注意这里指向templates目录下的静态资源
+	staticPath := filepath.Join(cwd, "templates")
+	uploadsPath := filepath.Join(cwd, "uploads")
+	r.Static("/static", staticPath)
+	r.Static("/uploads", uploadsPath)
 
 	// 注册路由
 	routes.RegisterPageRoutes(r, db)
