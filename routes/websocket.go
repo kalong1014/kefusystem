@@ -161,10 +161,11 @@ func (m *WebSocketManager) sendAgentClientList(agent *Client) {
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
 
-	for id, client := range m.Clients {
+	// 修复：使用正确的变量名
+	for clientID, client := range m.Clients {
 		if !client.IsAgent {
 			clientsData.Clients = append(clientsData.Clients, &Client{
-				ID:        id,
+				ID:        clientID, // 使用正确的clientID变量
 				IsAgent:   client.IsAgent,
 				SessionID: client.SessionID,
 			})
@@ -225,7 +226,7 @@ func (m *WebSocketManager) unregisterClient(client *Client) {
 					MsgType:   "system",
 				}
 
-				for id, agent := range m.Clients {
+				for _, agent := range m.Clients {
 					if agent.IsAgent {
 						agent.Send <- m.serializeMessage(closeMsg)
 					}
@@ -397,112 +398,14 @@ func (c *Client) write() {
 		}
 	}()
 
-	for {
-		select {
-		case message, ok := <-c.Send:
-			if !ok {
-				// 发送通道关闭，关闭WebSocket连接
-				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-
-			// 写入消息
-			if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
-				log.Printf("写入消息失败: %v", err)
-				return
-			}
-		}
-	}
-}
-
-// 接受会话
-func (m *WebSocketManager) acceptSession(agent *Client, sessionID string) bool {
-	m.Mutex.Lock()
-	defer m.Mutex.Unlock()
-
-	if session, ok := m.Sessions[sessionID]; ok {
-		if session.Status == "pending" {
-			session.AgentID = agent.ID
-			session.Status = "open"
-			session.UpdatedAt = time.Now()
-
-			// 更新数据库
-			_, err := m.DB.Exec(`
-                UPDATE sessions 
-                SET agent_id = ?, status = ?, updated_at = ? 
-                WHERE id = ?
-            `, agent.ID, "open", session.UpdatedAt.Format("2006-01-02 15:04:05"), session.ID)
-
-			if err != nil {
-				log.Printf("接受会话更新数据库失败: %v", err)
-				return false
-			}
-
-			// 通知客户
-			systemMsg := &Message{
-				Sender:    "system",
-				Content:   fmt.Sprintf("客服 %s 已接受您的咨询", agent.ID),
-				Timestamp: time.Now().Format("2006-01-02 15:04:05"),
-				MsgType:   "system",
-			}
-
-			if client, ok := m.Clients[session.ClientID]; ok {
-				client.Send <- m.serializeMessage(systemMsg)
-				client.SessionID = sessionID
-
-				// 通知客服
-				agent.SessionID = sessionID
-				agent.Send <- m.serializeMessage(systemMsg)
-
-				// 发送历史消息给客服
-				m.sendSessionHistory(agent, sessionID)
-
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-// 发送会话历史消息
-func (m *WebSocketManager) sendSessionHistory(agent *Client, sessionID string) {
-	rows, err := m.DB.Query(`
-        SELECT sender_id, sender_name, content, message_type, created_at
-        FROM messages
-        WHERE session_id = ?
-        ORDER BY created_at ASC
-    `, sessionID)
-
-	if err != nil {
-		log.Printf("获取会话历史失败: %v", err)
-		return
-	}
-
-	defer rows.Close()
-
-	var history []Message
-	for rows.Next() {
-		var msg Message
-		if err := rows.Scan(&msg.Sender, &msg.Sender, &msg.Content, &msg.MsgType, &msg.Timestamp); err != nil {
-			log.Printf("扫描消息失败: %v", err)
-			continue
-		}
-		history = append(history, msg)
-	}
-
-	if len(history) > 0 {
-		historyData, err := json.Marshal(map[string]interface{}{
-			"type":     "history",
-			"session":  sessionID,
-			"messages": history,
-		})
-
-		if err != nil {
-			log.Printf("序列化历史消息失败: %v", err)
+	for message := range c.Send {
+		// 写入消息
+		if err := c.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
+			log.Printf("写入消息失败: %v", err)
 			return
 		}
-
-		agent.Send <- historyData
 	}
+
+	// 发送通道关闭，关闭WebSocket连接
+	c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 }

@@ -1,90 +1,90 @@
 package routes
 
 import (
-    "database/sql"
-    "encoding/json"
-    "fmt"
-    "io"
-    "net/http"
-    "os"
-    "strconv"
-    "strings"
-    "time"
+	"database/sql"
+	"fmt"
+	"net/http"
+	"os"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    "kefusystem/database"
+	"github.com/gin-gonic/gin"
 )
 
 // API模型定义
 type User struct {
-    ID        int    `json:"id"`
-    Name      string `json:"name"`
-    Email     string `json:"email"`
-    Password  string `json:"password,omitempty"`
-    Role      string `json:"role"`
-    CreatedAt string `json:"created_at,omitempty"`
-    UpdatedAt string `json:"updated_at,omitempty"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Password  string `json:"password,omitempty"`
+	Role      string `json:"role"`
+	CreatedAt string `json:"created_at,omitempty"`
+	UpdatedAt string `json:"updated_at,omitempty"`
+}
+
+// FAQ模型定义
+type FAQ struct {
+	ID        int    `json:"id"`
+	Question  string `json:"question"`
+	Answer    string `json:"answer"`
+	CreatedAt string `json:"created_at,omitempty"`
+	UpdatedAt string `json:"updated_at,omitempty"`
 }
 
 // RegisterAPIRoutes 注册API路由
 func RegisterAPIRoutes(r *gin.Engine, db *sql.DB) {
-    api := r.Group("/api")
-    {
-        // 登录接口
-        api.POST("/login", func(c *gin.Context) {
-            var req struct {
-                Email    string `json:"email" binding:"required"`
-                Password string `json:"password" binding:"required"`
-            }
+	api := r.Group("/api")
+	{
+		// 登录接口
+		api.POST("/login", func(c *gin.Context) {
+			var req struct {
+				Email    string `json:"email" binding:"required"`
+				Password string `json:"password" binding:"required"`
+			}
 
-            if err := c.ShouldBindJSON(&req); err != nil {
-                c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-                return
-            }
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
 
-            // 查询用户
-            var user User
-            err := db.QueryRow(`
+			// 查询用户
+			var user User
+			err := db.QueryRow(`
                 SELECT id, name, email, password, role, created_at, updated_at 
                 FROM users 
                 WHERE email = ?
             `, req.Email).Scan(
-                &user.ID,
-                &user.Name,
-                &user.Email,
-                &user.Password,
-                &user.Role,
-                &user.CreatedAt,
-                &user.UpdatedAt,
-            )
+				&user.ID,
+				&user.Name,
+				&user.Email,
+				&user.Password,
+				&user.Role,
+				&user.CreatedAt,
+				&user.UpdatedAt,
+			)
 
-            if err != nil {
-                if err == sql.ErrNoRows {
-                    c.JSON(http.StatusUnauthorized, gin.H{"error": "用户不存在"})
-                } else {
-                    c.JSON(http.StatusInternalServerError, gin.H{"error": "数据库错误"})
-                }
-                return
-            }
+			if err != nil {
+				if err == sql.ErrNoRows {
+					c.JSON(http.StatusUnauthorized, gin.H{"error": "用户不存在"})
+				} else {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "数据库错误"})
+				}
+				return
+			}
 
-            // 检查密码
-            if user.Password != req.Password {
-                c.JSON(http.StatusUnauthorized, gin.H{"error": "密码错误"})
-                return
-            }
+			// 检查密码
+			if user.Password != req.Password {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "密码错误"})
+				return
+			}
 
-            // 生成令牌
-            token := generateToken(user.ID, user.Role)
+			// 生成令牌
+			token := generateToken(user.ID, user.Role)
 
-            c.JSON(http.StatusOK, gin.H{
-                "user":  user,
-                "token": token,
-            })
-        })
-// 生成简单令牌
-func generateToken(userID int, role string) string {
-    return fmt.Sprintf("%d_%s_%d", userID, role, time.Now().Unix())
-}
+			c.JSON(http.StatusOK, gin.H{
+				"user":  user,
+				"token": token,
+			})
+		})
 
 		// 文件上传接口
 		api.POST("/upload", func(c *gin.Context) {
@@ -160,12 +160,11 @@ func generateToken(userID int, role string) string {
 			c.JSON(http.StatusOK, faq)
 		})
 
-		// 其他API接口保持不变...
-
+		// 其他API接口...
 	}
 }
 
-// 生成简单令牌 - 修复格式化错误
+// 生成简单令牌
 func generateToken(userID int, role string) string {
-    return fmt.Sprintf("%d_%s_%d", userID, role, time.Now().Unix())
+	return fmt.Sprintf("%d_%s_%d", userID, role, time.Now().Unix())
 }
