@@ -74,7 +74,7 @@ func main() {
 	routes.RegisterPageRoutes(r, db)
 	routes.RegisterWebSocketRoute(r, db)
 	routes.RegisterAPIRoutes(r, db)
-	RegisterRoutes(router)
+	routes.RegisterRoutes(router, db)
 
 	// 启动服务器
 	port := os.Getenv("PORT")
@@ -83,4 +83,6 @@ func main() {
 	}
 	log.Printf("服务器启动在 :%s", port)
 	log.Fatal(r.Run(":" + port))
+	log.Println("服务器启动在 :8082")
+	router.Run(":8082")
 }

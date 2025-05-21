@@ -1,5 +1,3 @@
-// utils.js - 通用工具函数库
-
 /**
  * 格式化时间戳为可读的日期时间格式
  * @param {number} timestamp - 时间戳（毫秒）
@@ -7,6 +5,11 @@
  * @returns {string} 格式化的日期时间字符串
  */
 export function formatDateTime(timestamp, showSeconds = false) {
+  if (typeof timestamp !== 'number') {
+    console.warn('Invalid timestamp:', timestamp);
+    return '';
+  }
+  
   const date = new Date(timestamp);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -38,7 +41,7 @@ export function generateUniqueId() {
  * @returns {boolean} 如果字符串为空或仅包含空格，返回true，否则返回false
  */
 export function isEmpty(str) {
-  return str === undefined || str === null || str.trim() === '';
+  return str === undefined || str === null || (typeof str === 'string' && str.trim() === '');
 }
 
 /**
@@ -84,8 +87,13 @@ export function isMobileDevice() {
  * @returns {string|null} 参数值，如果不存在则返回null
  */
 export function getUrlParam(paramName) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(paramName);
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(paramName);
+  } catch (error) {
+    console.error('Failed to parse URL parameters:', error);
+    return null;
+  }
 }
 
 /**
@@ -95,6 +103,10 @@ export function getUrlParam(paramName) {
  * @returns {Function} 防抖处理后的函数
  */
 export function debounce(func, delay) {
+  if (typeof func !== 'function') {
+    throw new Error('debounce: first argument must be a function');
+  }
+  
   let timer;
   return function() {
     const context = this;
@@ -111,6 +123,10 @@ export function debounce(func, delay) {
  * @returns {Function} 节流处理后的函数
  */
 export function throttle(func, limit) {
+  if (typeof func !== 'function') {
+    throw new Error('throttle: first argument must be a function');
+  }
+  
   let inThrottle;
   return function() {
     const context = this;
@@ -136,7 +152,10 @@ export async function fetchData(url, options = {}) {
   try {
     const response = await fetch(url, {
       method: options.method || 'GET',
-      headers: options.headers || {},
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
       body: options.body ? JSON.stringify(options.body) : null
     });
     
@@ -144,9 +163,14 @@ export async function fetchData(url, options = {}) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    return await response.json();
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      return await response.text();
+    }
   } catch (error) {
     console.error('Fetch error:', error);
     throw error;
   }
-}
+}    

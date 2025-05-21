@@ -1,49 +1,69 @@
-// 语言资源
+/**
+ * 国际化支持模块
+ */
+let currentLocale = 'zh-CN';
 let translations = {};
-let currentLanguage = 'zh-CN';
 
-// 加载语言文件
-async function loadLanguage(lang) {
-    try {
-        const response = await fetch(`locales/${lang}.json`);
-        translations = await response.json();
-        currentLanguage = lang;
-        document.documentElement.lang = lang;
-        applyTranslations();
-        return true;
-    } catch (error) {
-        console.error('加载语言文件失败:', error);
-        return false;
+/**
+ * 加载语言文件
+ * @param {string} locale - 语言代码，如 'zh-CN'
+ * @returns {Promise<void>}
+ */
+export async function loadLanguage(locale) {
+  try {
+    const response = await fetch(`/locales/${locale}.json`);
+    if (!response.ok) {
+      throw new Error(`Failed to load locale: ${locale}`);
     }
-}
-
-// 应用翻译到DOM
-function applyTranslations() {
-    document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (translations[key]) {
-            element.textContent = translations[key];
-        }
-    });
     
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-        const key = element.getAttribute('data-i18n-placeholder');
-        if (translations[key]) {
-            element.placeholder = translations[key];
-        }
-    });
+    translations = await response.json();
+    currentLocale = locale;
+    console.log(`Loaded locale: ${locale}`);
     
-    // 更新页面标题
-    const pageTitleKey = document.getElementById('page-title').getAttribute('data-i18n');
-    if (pageTitleKey && translations[pageTitleKey]) {
-        document.title = translations[pageTitleKey];
-    }
+    // 更新页面上的所有翻译
+    updateTranslations();
+  } catch (error) {
+    console.error('Error loading language:', error);
+    throw error;
+  }
 }
 
-// 获取翻译文本
-function __(key) {
-    return translations[key] || key;
+/**
+ * 获取翻译文本
+ * @param {string} key - 翻译键
+ * @param {Object} [placeholders={}] - 占位符对象
+ * @returns {string} 翻译后的文本
+ */
+export function translate(key, placeholders = {}) {
+  let text = translations[key] || key;
+  
+  // 替换占位符
+  Object.keys(placeholders).forEach(placeholder => {
+    text = text.replace(`{${placeholder}}`, placeholders[placeholder]);
+  });
+  
+  return text;
 }
 
-// 注册翻译函数到全局
-window.__ = __;    
+/**
+ * 更新页面上的所有翻译元素
+ */
+function updateTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    element.textContent = translate(key);
+  });
+  
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+    const key = element.getAttribute('data-i18n-placeholder');
+    element.setAttribute('placeholder', translate(key));
+  });
+}
+
+/**
+ * 获取当前语言
+ * @returns {string} 当前语言代码
+ */
+export function getCurrentLocale() {
+  return currentLocale;
+}    
