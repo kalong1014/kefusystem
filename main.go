@@ -33,11 +33,14 @@ func main() {
 
 	r := gin.Default()
 
+	// 初始化HTML模板引擎（新增代码）
+	r.LoadHTMLGlob("templates/**/*.html")
+
 	// 静态文件服务
 	r.Static("/static", "./static")
 	r.Static("/uploads", "./uploads")
 
-	// 注册路由 - 修正函数名大小写
+	// 注册路由
 	routes.RegisterPageRoutes(r, db)
 	routes.RegisterWebSocketRoute(r, db)
 	routes.RegisterAPIRoutes(r, db)
