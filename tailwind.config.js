@@ -1,10 +1,8 @@
-// tailwind.config.js
 module.exports = {
-  content: [
-    "./templates/*.html", // 指定HTML文件位置
-  ],
+  content: ["./templates/*.html"],
   theme: {
     extend: {},
   },
   plugins: [],
 }
+    

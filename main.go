@@ -13,6 +13,19 @@ import (
 )
 
 func main() {
+	// 设置生产模式
+	if os.Getenv("GIN_MODE") != "debug" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	router := gin.Default()
+
+	// 加载HTML模板
+	router.LoadHTMLGlob("templates/*.html")
+
+	// 配置信任的代理
+	router.SetTrustedProxies([]string{"127.0.0.1"}) // 根据实际情况配置
+
 	// 获取当前工作目录（项目根目录）
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -61,6 +74,7 @@ func main() {
 	routes.RegisterPageRoutes(r, db)
 	routes.RegisterWebSocketRoute(r, db)
 	routes.RegisterAPIRoutes(r, db)
+	RegisterRoutes(router)
 
 	// 启动服务器
 	port := os.Getenv("PORT")
