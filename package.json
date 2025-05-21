@@ -1,0 +1,23 @@
+{
+  "name": "kefusystem",
+  "version": "1.0.0",
+  "description": "Go 的 Gin 框架开发的在线客服系统，满足游戏在线客服的需求。系统采用简单的结构设计，适合小场景使用。\r 系统包含以下主要功能模块：\r 客户前端：来宾用户通过 URL 链接访问即可使用客服系统，支持发送文字、图片和表情。\r 客服界面：客服人员可在左侧查看当前咨询的玩家队列，中间为聊天框，右侧显示玩家详细信息。\r 管理后台：可配置欢迎界面文字、图片链接、banner 图，以及常见问题等内容。\r 翻译功能：客户和客服均可设置默认显示语种，系统会自动翻译双方的对话内容。\r API 接口：支持通过 API 拉起客服，并传递玩家 ID 等参数，这些参数会显示在客服端的右侧详细信息区域。\r 系统使用 SQLite 数据库，适合小场景使用，配置简单。如需嵌入到 Cocos 游戏前端，可使用提供的 embed.html 页面，通过 iframe 或直接集成到游戏前端。\r 部署步骤：\r 安装 Go 语言环境\r 下载代码并解压\r 执行 go mod tidy 安装依赖\r 执行 go run main.go 启动服务\r 通过浏览器访问 http://localhost:8082 使用系统",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kalong1014/kefusystem.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kalong1014/kefusystem/issues"
+  },
+  "homepage": "https://github.com/kalong1014/kefusystem#readme",
+  "dependencies": {
+    "tailwindcss": "^3.3.3"
+  }
+}

@@ -46,10 +46,14 @@ func main() {
 	log.Printf("尝试加载模板: %s", templatePath)
 	r.LoadHTMLGlob(templatePath)
 
-	// 静态文件服务 - 注意这里指向templates目录下的静态资源
-	staticPath := filepath.Join(cwd, "templates")
+	// 静态文件服务 - 分别为不同类型的静态资源设置路径
+	r.Static("/css", filepath.Join(cwd, "templates/css"))
+	r.Static("/js", filepath.Join(cwd, "templates/js"))
+	r.Static("/locales", filepath.Join(cwd, "templates/locales"))
+	r.StaticFile("/favicon.ico", filepath.Join(cwd, "templates/favicon.ico"))
+
+	// 上传文件服务
 	uploadsPath := filepath.Join(cwd, "uploads")
-	r.Static("/static", staticPath)
 	r.Static("/uploads", uploadsPath)
 
 	// 注册路由

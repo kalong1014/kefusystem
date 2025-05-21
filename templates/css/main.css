@@ -1,41 +1,51 @@
+/* templates/css/main.css */
+@tailwind utilities;
+@tailwind components;
+@tailwind utilities;
 @layer utilities {
-    .content-auto {
-        content-visibility: auto;
-    }
-    .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-    }
-    .message-bubble-left {
-        border-radius: 0 16px 16px 16px;
-    }
-    .message-bubble-right {
-        border-radius: 16px 0 16px 16px;
-    }
-    .sidebar-link {
-        @apply flex items-center px-4 py-3 rounded-lg text-gray-300 group hover:bg-gray-700 hover:text-white transition-all duration-200;
-    }
-    .sidebar-link.active {
-        @apply bg-primary/10 text-primary;
-    }
-    .card {
-        @apply bg-white rounded-xl shadow-sm p-5 transform transition-all duration-300 hover:shadow-md hover:-translate-y-1;
-    }
-    .btn {
-        @apply px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2;
-    }
-    .btn-primary {
-        @apply bg-primary text-white hover:bg-primary/90 focus:ring-primary/50;
-    }
-    .btn-outline {
-        @apply border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-200;
-    }
+  .content-auto {
+    content-visibility: auto;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .message-bubble-left {
+    border-radius: 0 16px 16px 16px;
+  }
+  .message-bubble-right {
+    border-radius: 16px 0 16px 16px;
+  }
+  .sidebar-link {
+    @apply flex items-center px-4 py-3 rounded-lg text-gray-300 group hover:bg-gray-700 hover:text-white transition-all duration-200;
+  }
+  .sidebar-link.active {
+    @apply bg-primary/10 text-primary;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-sm p-5 transform transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+  }
+  .btn {
+    @apply px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90 focus:ring-primary/50;
+  }
+  .btn-outline {
+    @apply border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-200;
+  }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}    
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
