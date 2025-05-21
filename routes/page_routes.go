@@ -1,13 +1,14 @@
 package routes
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// 注册页面路由
-func registerPageRoutes(r *gin.Engine) {
+// RegisterPageRoutes 注册页面路由（修正函数名导出）
+func RegisterPageRoutes(r *gin.Engine, db *sql.DB) {
 	// 静态页面路由
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", nil)
@@ -17,7 +18,6 @@ func registerPageRoutes(r *gin.Engine) {
 	r.GET("/dashboard", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "dashboard.html", nil)
 	})
-
 	// 会话管理
 	r.GET("/sessions", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "sessions.html", nil)

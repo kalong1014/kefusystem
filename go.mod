@@ -1,4 +1,4 @@
-module github.com/kalong1014/kefusystem
+module kefusystem
 
 go 1.24.3
 

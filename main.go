@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/kalong1014/kefusystem/database"
-	"github.com/kalong1014/kefusystem/routes"
+	"kefusystem/database"
+	"kefusystem/routes"
 )
 
 func main() {
@@ -37,10 +37,10 @@ func main() {
 	r.Static("/static", "./static")
 	r.Static("/uploads", "./uploads")
 
-	// 注册路由
+	// 注册路由 - 修正函数名大小写
+	routes.RegisterPageRoutes(r, db)
+	routes.RegisterWebSocketRoute(r, db)
 	routes.RegisterAPIRoutes(r, db)
-	routes.RegisterPageRoutes(r)
-	routes.RegisterWebSocketRoute(r)
 
 	// 启动服务器
 	port := os.Getenv("PORT")
