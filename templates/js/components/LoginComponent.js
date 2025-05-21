@@ -1,71 +1,104 @@
-const LoginComponent = {
+// 确保LoginComponent被正确定义
+export default {
     render() {
         return `
-            <!-- 登录页面 -->
-            <div id="login-page" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary to-secondary">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4 transform transition-all duration-500 hover:scale-[1.02]">
+            <div id="login-page" class="min-h-screen flex items-center justify-center bg-gray-50">
+                <div class="max-w-md w-full p-6 bg-white rounded-lg shadow-xl">
                     <div class="text-center mb-8">
-                        <h1 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-primary" data-i18n="systemName">智能客服系统</h1>
-                        <p class="text-gray-500 mt-2" data-i18n="loginPrompt">请登录您的账户</p>
+                        <h1 class="text-3xl font-bold text-gray-800" data-i18n="welcome">欢迎使用智能客服</h1>
                     </div>
-                    
-                    <form id="login-form" class="space-y-5">
-                        <div class="space-y-2">
+                    <form id="login-form" class="space-y-4">
+                        <div>
                             <label for="email" class="block text-sm font-medium text-gray-700" data-i18n="email">邮箱</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <i class="fa-solid fa-envelope"></i>
-                                </span>
-                                <input type="email" id="email" name="email" required
-                                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300"
-                                    placeholder="请输入您的邮箱">
-                            </div>
+                            <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                         </div>
-                        
-                        <div class="space-y-2">
+                        <div>
                             <label for="password" class="block text-sm font-medium text-gray-700" data-i18n="password">密码</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <i class="fa-solid fa-lock"></i>
-                                </span>
-                                <input type="password" id="password" name="password" required
-                                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300"
-                                    placeholder="请输入您的密码">
-                            </div>
+                            <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                         </div>
-                        
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
-                                <input id="remember-me" name="remember-me" type="checkbox"
-                                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-                                <label for="remember-me" class="ml-2 block text-sm text-gray-700" data-i18n="rememberMe">记住我</label>
+                                <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-900" data-i18n="remember">记住我</label>
                             </div>
-                            <a href="#" class="text-sm font-medium text-primary hover:text-primary/80 transition-colors duration-200" data-i18n="forgotPassword">忘记密码?</a>
+                            <div class="text-sm">
+                                <a href="#" class="font-medium text-blue-600 hover:text-blue-500" data-i18n="forgot">忘记密码?</a>
+                            </div>
                         </div>
-                        
-                        <button type="submit"
-                            class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg flex items-center justify-center">
-                            <span data-i18n="login">登录</span>
-                            <i class="fa-solid fa-arrow-right ml-2"></i>
-                        </button>
+                        <div>
+                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-i18n="login">登录</button>
+                        </div>
                     </form>
-                    
-                    <div class="mt-8 text-center">
-                        <p class="text-gray-500" data-i18n="noAccount">还没有账户? <a href="#" class="font-medium text-primary hover:text-primary/80 transition-colors duration-200" data-i18n="register">注册</a></p>
+                    <div class="mt-8">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-white text-gray-500" data-i18n="or">或者</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-3 gap-3">
+                            <div>
+                                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fa-brands fa-weixin text-green-600 mr-2"></i>
+                                    <span data-i18n="wechat">微信</span>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fa-brands fa-qq text-blue-500 mr-2"></i>
+                                    <span data-i18n="qq">QQ</span>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="#" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fa-brands fa-google text-red-500 mr-2"></i>
+                                    <span data-i18n="google">Google</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- 语言选择器 -->
-                <div class="absolute top-4 right-4">
-                    <select id="lang-selector" class="bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-white/50">
-                        <option value="zh-CN" selected>中文</option>
-                        <option value="en-US">English</option>
-                    </select>
+                    <div class="mt-6 text-center text-sm text-gray-500">
+                        <span data-i18n="need-help">需要帮助?</span>
+                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500" data-i18n="contact">联系我们</a>
+                    </div>
                 </div>
             </div>
         `;
     },
-    
+    async afterRender() {
+        // 绑定登录表单提交事件
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // 简单验证
+            if (!email || !password) {
+                showToast('请输入邮箱和密码', 'error');
+                return;
+            }
+
+            // 模拟登录验证
+            const isAuthenticated = await simulateLogin(email, password);
+
+            if (isAuthenticated) {
+                // 隐藏登录页面，显示主应用
+                document.getElementById('login-page')?.classList.add('hidden');
+                document.getElementById('app')?.classList.remove('hidden');
+                document.getElementById('chat-widget')?.classList.remove('hidden');
+
+                // 渲染仪表盘
+                await renderDashboard();
+            } else {
+                showToast('认证失败，请检查凭证', 'error');
+            }
+        });
+
+        this.addLoginFormAnimation();
+    },   
     afterRender() {
         // 添加登录表单动画
         const formInputs = document.querySelectorAll('#login-form input');
@@ -79,5 +112,6 @@ const LoginComponent = {
                 input.parentElement.parentElement.classList.remove('scale-[1.02]');
             });
         });
-    }
-};    
+            console.log('Login form rendered');
+    } 
+}   

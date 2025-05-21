@@ -11,20 +11,28 @@ let translations = {};
  */
 export async function loadLanguage(locale) {
   try {
+    console.log(`Loading locale: ${locale}`);
     const response = await fetch(`/locales/${locale}.json`);
+    
     if (!response.ok) {
+      console.error(`Failed to load locale: ${locale}, status: ${response.status}`);
       throw new Error(`Failed to load locale: ${locale}`);
     }
     
     translations = await response.json();
     currentLocale = locale;
-    console.log(`Loaded locale: ${locale}`);
+    console.log(`Loaded locale: ${locale} successfully`);
     
     // 更新页面上的所有翻译
     updateTranslations();
   } catch (error) {
     console.error('Error loading language:', error);
-    throw error;
+    // 加载默认语言作为后备
+    if (locale !== 'zh-CN') {
+      await loadLanguage('zh-CN');
+    } else {
+      throw error;
+    }
   }
 }
 

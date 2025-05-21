@@ -1,17 +1,15 @@
-// 初始化应用
 import { loadLanguage } from './i18n.js';
+import LoginComponent from './components/LoginComponent.js';
+import DashboardComponent from './components/DashboardComponent.js';
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // 加载语言文件
+        console.log('Starting application initialization...');
         await loadLanguage('zh-CN');
-        
-        // 渲染登录页面
         await renderLoginPage();
-        
-        // 初始化事件监听
-        initEventListeners();
+        initEventListeners(); // 内部调用不需要导出
+        console.log('Application initialized successfully');
     } catch (error) {
         console.error('应用初始化失败:', error);
         showToast('应用加载失败，请刷新页面', 'error');
@@ -21,8 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 渲染登录页面
 async function renderLoginPage() {
     try {
-        // 动态导入组件
-        const { default: LoginComponent } = await import('./components/LoginComponent.js');
+        console.log('Rendering login page...');
         
         const appContainer = document.getElementById('app-container');
         appContainer.innerHTML = await LoginComponent.render();
@@ -31,14 +28,15 @@ async function renderLoginPage() {
         if (typeof LoginComponent.afterRender === 'function') {
             await LoginComponent.afterRender();
         }
+        
+        console.log('Login page rendered successfully');
     } catch (error) {
         console.error('渲染登录页面失败:', error);
         showToast('登录页面加载失败', 'error');
     }
 }
-
 // 初始化事件监听
-function initEventListeners() {
+export function initEventListeners() {
     // 使用事件委托处理动态元素
     document.addEventListener('submit', async (e) => {
         if (e.target.id === 'login-form') {
@@ -51,8 +49,6 @@ function initEventListeners() {
     document.getElementById('lang-selector')?.addEventListener('change', async function() {
         try {
             await loadLanguage(this.value);
-            
-            // 重新渲染当前页面
             if (document.getElementById('login-page')) {
                 await renderLoginPage();
             } else {
@@ -64,6 +60,7 @@ function initEventListeners() {
         }
     });
 }
+
 
 // 用户认证
 async function authenticateUser() {
@@ -78,7 +75,9 @@ async function authenticateUser() {
         }
         
         // 模拟登录验证
-        const isAuthenticated = await simulateLogin(email, password);
+    async function simulateLogin(email, password) {
+    // ... 保持不变 ...
+}
         
         if (isAuthenticated) {
             // 隐藏登录页面，显示主应用
@@ -108,9 +107,7 @@ async function simulateLogin(email, password) {
 // 渲染仪表盘
 async function renderDashboard() {
     try {
-        // 动态导入组件
-        const { default: DashboardComponent } = await import('./components/DashboardComponent.js');
-        
+        // 不需要再次动态导入，已经在文件顶部导入
         const appContainer = document.getElementById('app-container');
         appContainer.innerHTML = await DashboardComponent.render();
         
@@ -122,8 +119,7 @@ async function renderDashboard() {
         console.error('渲染仪表盘失败:', error);
         showToast('仪表盘加载失败', 'error');
     }
-}
-
+}  
 // 显示通知提示
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');

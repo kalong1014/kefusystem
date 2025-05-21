@@ -6,14 +6,27 @@
     <title id="page-title">智能客服系统</title>
     <link href="/static/css/tailwind.css" rel="stylesheet">
     <link href="/static/css/all.min.css" rel="stylesheet">
-    <script type="module" src="js/i18n.js"></script>
-    <script type="module" src="js/utils.js"></script>
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body class="font-inter bg-neutral text-dark min-h-screen flex flex-col">
     <!-- 应用容器 -->
     <div id="app-container"></div>
 
-    <script type="module" src="js/main.js"></script>
+    <!-- 使用模块方式加载JS -->
+    <script type="module">
+    import { loadLanguage } from './js/i18n.js';
+    import { renderLoginPage, initEventListeners } from './js/main.js'; // 确保导入语法正确
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            await loadLanguage('zh-CN');
+            await renderLoginPage();
+            initEventListeners(); // 调用导出的函数
+        } catch (error) {
+            console.error('应用初始化失败:', error);
+            alert('应用加载失败，请刷新页面');
+        }
+    });
+</script> 
 </body>
 </html>    
