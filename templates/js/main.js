@@ -75,9 +75,11 @@ async function authenticateUser() {
         }
         
         // 模拟登录验证
-    async function simulateLogin(email, password) {
-    // ... 保持不变 ...
-}
+        async function simulateLogin(email, password) {
+            // ... 保持不变 ...
+        }
+        
+        const isAuthenticated = await simulateLogin(email, password);
         
         if (isAuthenticated) {
             // 隐藏登录页面，显示主应用
@@ -136,3 +138,6 @@ function showToast(message, type = 'info') {
         setTimeout(() => document.body.removeChild(toast), 300);
     }, 3000);
 }    
+
+// 导出 renderLoginPage 函数
+export { renderLoginPage };
